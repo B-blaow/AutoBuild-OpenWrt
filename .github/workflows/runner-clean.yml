@@ -1,0 +1,124 @@
+name: CI Environment Cleanup
+
+on:
+  workflow_dispatch:
+  
+  workflow_run:
+    workflows:
+      - SSH Generate & Save .config
+      - Build OpenWrt
+      - Build LEDE
+      - Build ImmortalWrt
+    types:
+      - completed
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Disk usage (before cleanup)
+        run: |
+          echo "=== BEFORE CLEANUP ==="
+          df -h
+          sudo du -h / \
+            --exclude=/proc \
+            --exclude=/sys \
+            --exclude=/dev \
+            2>/dev/null | sort -hr | head -n 30 || true
+
+      - name: Remove large system components (safe)
+        run: |
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /opt/ghc || true
+          sudo rm -rf /usr/local/lib/android || true
+          sudo rm -rf /etc/mysql || true
+          sudo rm -rf /etc/php || true
+
+          # System logs
+          sudo find /var/log -type f -delete
+
+          # Fonts
+          sudo rm -rf /usr/share/fonts/*
+
+          # Icons
+          sudo rm -rf /usr/share/icons/*
+
+          # Documentation
+          sudo rm -rf /usr/share/man/* || true
+          sudo rm -rf /usr/share/doc/* || true
+          sudo rm -rf /usr/share/info/* || true
+
+          # Locale files
+          sudo rm -rf /usr/share/locale/*
+          sudo rm -rf /usr/share/i18n/*
+          sudo rm -rf /usr/lib/locale/*
+
+      - name: Conditional Docker cleanup (smart detection)
+        run: |
+          echo "=== Docker Cleanup ==="
+
+          # Check if docker CLI exists
+          if ! command -v docker >/dev/null 2>&1; then
+            echo "❌ Docker CLI not found, skipping cleanup"
+            exit 0
+          fi
+
+          # Check if Docker daemon is running
+          if ! docker info >/dev/null 2>&1; then
+            echo "❌ Docker daemon not running, skipping cleanup"
+            exit 0
+          fi
+
+          echo "✔ Docker daemon detected, starting cleanup..."
+
+          RUNNING_CONTAINERS=$(docker ps -q || true)
+
+          if [ -n "$RUNNING_CONTAINERS" ]; then
+            echo "⚠️ Running containers detected, performing prune only"
+            sudo docker system prune -af || true
+          else
+            echo "✅ No running containers, performing deep cleanup"
+            sudo docker system prune -af || true
+            echo "🧹 Removing /var/lib/docker to free maximum space"
+            sudo rm -rf /var/lib/docker || true
+          fi
+
+          echo "=== Docker Cleanup Done ==="
+      - name: Clean APT / logs / temp files
+        run: |
+          sudo apt-get clean || true
+          sudo find /var/log -type f -delete || true
+          sudo rm -rf /tmp/* /var/tmp/* || true
+
+      - name: Clean /mnt (keep swapfile)
+        run: |
+          echo "Cleaning /mnt except swapfile"
+          sudo find /mnt -mindepth 1 -maxdepth 1 ! -name swapfile -exec rm -rf {} +
+          sudo mkdir -p /mnt
+          sudo chown $USER:$USER /mnt
+
+      - name: Clean user caches (ccache / npm / pip)
+        run: |
+          rm -rf ~/.ccache || true
+          rm -rf ~/.cache/pip || true
+          rm -rf ~/.npm || true
+
+      - name: Disk usage (after cleanup)
+        run: |
+          echo "=== AFTER CLEANUP ==="
+          df -h
+          sudo du -h / \
+            --exclude=/proc \
+            --exclude=/sys \
+            --exclude=/dev \
+            2>/dev/null | sort -hr | head -n 30 || true
+
+
+      - name: Cleanup Done
+        run: echo "✅ Runner deep cleanup finished safely"

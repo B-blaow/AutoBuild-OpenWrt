@@ -1,0 +1,146 @@
+name: SSH Generate & Save .config
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Select source'
+        required: true
+        default: openwrt
+        type: choice
+        options:
+          - openwrt
+          - immortalwrt
+          - lede
+          - immortalwrt_798x
+          - istoreos
+
+      save_to_repo:
+        description: 'Save generated .config back to repository'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  ssh-config:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180
+
+    env:
+      WORKDIR: /mnt/workdir
+      CONFIG_DIR: $GITHUB_WORKSPACE/configs/${{ inputs.target }}
+      SSH_WAIT_TIMEOUT: 1800  # 30 分钟超时
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y \
+          build-essential clang flex bison g++ gawk gcc-multilib \
+          gettext git libncurses-dev libssl-dev python3 rsync unzip zlib1g-dev \
+          tmate
+          
+    - name: Prepare workspace
+      run: |
+        sudo mkdir -p /mnt
+        sudo chown $USER:$USER /mnt
+
+
+    - name: Clone source
+      run: |
+        mkdir -p $WORKDIR
+        cd $WORKDIR
+
+        case "${{ inputs.target }}" in
+          openwrt)
+            git clone https://github.com/openwrt/openwrt.git .
+            ;;
+          immortalwrt)
+            git clone https://github.com/immortalwrt/immortalwrt.git .
+            ;;
+          lede)
+            git clone https://github.com/coolsnowwolf/lede.git .
+            ;;
+          immortalwrt_798x)
+            git clone https://github.com/hanwckf/immortalwrt-mt798x .
+            ;;
+          istoreos)
+            git clone https://github.com/istoreos/istoreos .
+            ;;
+        esac
+
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+
+        
+
+    - name: 🔐 SSH (tmate)
+      run: |
+        cd $WORKDIR
+
+        tmate -S /tmp/tmate.sock new-session -d
+        tmate -S /tmp/tmate.sock wait tmate-ready
+
+        SSH_CMD=$(tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}')
+        WEB_CMD=$(tmate -S /tmp/tmate.sock display -p '#{tmate_web}')
+
+        echo "============================================"
+        echo " SSH session is ready"
+        echo
+        echo " SSH : $SSH_CMD"
+        echo " WEB : $WEB_CMD"
+        echo
+        echo " Please connect to the SSH session."
+        echo " ============================================"
+
+        # 等待 SSH 连接，超时后关闭
+        SECONDS=0
+        while [ $SECONDS -lt $SSH_WAIT_TIMEOUT ]; do
+          CLIENTS=$(tmate -S /tmp/tmate.sock display -p '#{tmate_num_clients}')
+          if [ "$CLIENTS" != "0" ]; then
+            echo "🔓 SSH client connected"
+            tmate -S /tmp/tmate.sock wait tmate-exit
+            echo "🔒 SSH session closed by user"
+            exit 0
+          fi
+          sleep 5
+        done
+
+        # 超时后自动结束
+        echo "⏱ SSH session timed out"
+        tmate -S /tmp/tmate.sock kill-session
+
+    - name: Save .config to workspace
+      run: |
+        TARGET="${{ inputs.target }}"
+        DEST="$GITHUB_WORKSPACE/$TARGET"
+
+        mkdir -p "$DEST"
+        cp "$WORKDIR/.config" "$DEST/.config"
+
+        echo "Saved .config to $DEST/.config"
+        ls -l "$DEST/.config"  # 排查文件是否复制成功
+
+    - name: Commit & push .config to repo
+      if: ${{ inputs.save_to_repo == 'true' }}
+      run: |
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+
+        git add ${{ inputs.target }}/.config
+
+        if git diff --cached --quiet; then
+          echo "No config changes to commit"
+        else
+          git commit -m "(${{ inputs.target }}): update .config via SSH"
+          git push
+        fi
+
