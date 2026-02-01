@@ -23,7 +23,9 @@ on:
         options:
           - 'true'
           - 'false'
-
+permissions: 
+  contents: write
+  
 jobs:
   ssh-config:
     runs-on: ubuntu-22.04
