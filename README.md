@@ -1,28 +1,23 @@
 AutoBuild OpenWrt / ImmortalWrt / LEDE
 
-增加runner-clean.yml。被监听的工作流结束后自动运行CI Environment Cleanup 无需手动、定时触发CL环境清理（使用/mnt目录编译不需要清理 ）
+runner-clean.yml。被监听的工作流结束后自动运行CI Environment Cleanup 无需手动、定时触发CL环境清理（使用ubuntu-24.04、ubuntu-latest /mnt分区编译不需要清理 ）
 
-增加ssh-generate-config.yml生成.config文件直接push推送到正确目录，如果.config没有变化则不推送push
+ssh-generate-config.yml生成.config文件直接push推送到正确目录，如果.config没有变化则不推送push
 
-GitHub Actions CI 的 OpenWrt / ImmortalWrt / LEDE 自动化编译仓库，
-重点解决以下问题：
+GitHub Actions CI 的 OpenWrt / ImmortalWrt / LEDE 自动化编译仓库
 
-🧱 GitHub Actions 磁盘空间不足
-
-⚠️ make defconfig 静默取消已选包
 
 🔧 自动检测 / 修复 .config 中丢失的包（默认调用check-packages.sh只检测）可选check-packages-status.sh检测加连接ssh修复
 
 
-1️⃣ 解决 GitHub Actions 空间不足问题
 
-GitHub Actions 默认只有约 23GB 可用空间，直接编译 OpenWrt 极易失败。
 
-本仓库采用以下策略稳定释放空间：
+GitHub Actions ubuntu-22.04 没有/mnt分区，默认只有约 18GB 可用空间，直接编译 OpenWrt 极易失败。
 
-使用 /mnt 作为编译工作目录（约66GB可用空间）
+GitHub Actions Ubuntu-24.04 没有/mnt分区，默认分区可用空间约90GB(清理后可用空间超过100GB)
 
-显式清理无用软件与缓存
+GitHub Actions ubuntu-latest 使用/mnt分区 作为编译工作目录（约66GB可用空间）
+
 
 
 2️⃣ 检测 make defconfig 后被取消的包
@@ -68,11 +63,5 @@ CI 成功但功能缺失
 
 99% 是 defconfig 静默丢包
 
-
-
-
-
-
-📂 目录结构说明https://github.com/B-blaow/AutoBuild-OpenWrt/blob/main/DirectoryStructure
 
 
