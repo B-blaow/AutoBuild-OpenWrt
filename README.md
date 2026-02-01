@@ -1,15 +1,17 @@
 AutoBuild OpenWrt / ImmortalWrt / LEDE
 
-runner-clean.yml。被监听的工作流结束后自动运行CI Environment Cleanup 无需手动、定时触发CL环境清理（使用ubuntu-24.04、ubuntu-latest /mnt分区编译不需要清理 ）
 
-ssh-generate-config.yml生成.config文件直接push推送到正确目录，如果.config没有变化则不推送push
 
 GitHub Actions CI 的 OpenWrt / ImmortalWrt / LEDE 自动化编译仓库
 
 
 🔧 自动检测 / 修复 .config 中丢失的包（默认调用check-packages.sh只检测）可选check-packages-status.sh检测加连接ssh修复
 
+GitHub Actions ubuntu /mnt分区被GitHub移除
 
+runner-clean.yml。被监听的工作流结束后自动运行CI Environment Cleanup 无需手动、定时触发CL环境清理（使用ubuntu-24.04编译不需要清理 ）
+
+ssh-generate-config.yml生成.config文件直接push推送到正确目录，如果.config没有变化则不推送push
 
 
 GitHub Actions ubuntu-22.04 没有/mnt分区，默认只有约 18GB 可用空间，直接编译 OpenWrt 极易失败。
