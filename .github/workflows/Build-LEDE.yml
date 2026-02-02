@@ -19,6 +19,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Free disk space
+        run: |
+          chmod +x $GITHUB_WORKSPACE/scripts/cleanup.sh
+          sudo bash $GITHUB_WORKSPACE/scripts/cleanup.sh
+
       - name: Prepare system
         run: |
           sudo -E timedatectl set-timezone "Asia/Shanghai"
