@@ -11,6 +11,8 @@ GitHub Actions ubuntu /mnt分区被移除
 
 部分runner可能没/mnt分区也没有145GB大空间，只有74GB根分区，编译x84_64需要运行free-disk-space.sh脚本清理磁盘空间，清理后可用空间超过50GB(使用free-disk-space.sh脚本后编译速度较慢，注意时间！免费用户runner每次运行时间为6小时，超时自动关闭）
 
+74GB runner 日志https://github.com/B-blaow/AutoBuild-OpenWrt/blob/main/74gb_runner_actions_logs/0_build.txt
+
 
 GitHub Actions ubuntu-22.04 没有/mnt分区，默认只有约 18GB 可用空间，直接编译 OpenWrt 极易失败。
 
