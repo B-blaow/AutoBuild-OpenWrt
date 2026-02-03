@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-     - name: Free disk space
+      - name: Free disk space
         run: |
           df -h
           chmod +x $GITHUB_WORKSPACE/scripts/cleanup.sh
