@@ -1,6 +1,7 @@
 name: CI Environment Cleanup
 
-on:
+#destruction cleanup
+#on:
   workflow_dispatch:
   
   workflow_run:

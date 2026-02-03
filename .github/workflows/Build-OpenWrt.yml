@@ -23,8 +23,11 @@ jobs:
 
      - name: Free disk space
         run: |
+          df -h
           chmod +x $GITHUB_WORKSPACE/scripts/cleanup.sh
-          sudo bash $GITHUB_WORKSPACE/scripts/cleanup.sh
+          chmod +x $GITHUB_WORKSPACE/scripts/free-disk-space.sh
+          #sudo bash $GITHUB_WORKSPACE/scripts/cleanup.sh
+          #sudo bash $GITHUB_WORKSPACE/scripts/free-disk-space.sh       #Use with caution, as it may damage the environment.
 
       - name: Prepare system
         run: |
