@@ -9,27 +9,16 @@ GitHub Actions CI 的 OpenWrt / ImmortalWrt / LEDE 自动化编译仓库
 
 GitHub Actions ubuntu /mnt分区被移除
 
-部分runner可能没/mnt分区也没有145GB大空间，只有74GB根分区，编译x84_64需要运行free-disk-space.sh脚本清理磁盘空间，清理后可用空间超过50GB(使用free-disk-space.sh脚本后编译速度较慢，注意时间！免费用户runner每次运行时间为6小时，超时自动关闭）
+部分runner可能没/mnt分区也没有145GB大空间，只有72GB根分区，编译x84_64需要运行free-disk-space.sh脚本清理磁盘空间，清理后可用空间超过50GB(使用free-disk-space.sh脚本后编译速度较慢，注意时间！免费用户runner每次运行时间为6小时，超时自动关闭）
 
-74GB runner运行free-disk-space.sh 日志https://github.com/B-blaow/AutoBuild-OpenWrt/blob/main/74gb_runner_actions_logs/0_build.txt
+72GB runner运行free-disk-space.sh 日志https://github.com/B-blaow/AutoBuild-OpenWrt/blob/main/74gb_runner_actions_logs/0_build.txt
 
-
-GitHub Actions ubuntu-22.04 没有/mnt分区，默认只有约 18GB 可用空间，直接编译 OpenWrt 极易失败。
-
-GitHub Actions Ubuntu-24.04 没有/mnt分区，默认分区可用空间约90GB(清理后可用空间超过100GB)
-
-GitHub Actions ubuntu-latest 使用/mnt分区 作为编译工作目录（约66GB可用空间）
-
-
-
-
-runner-clean.yml。被监听的工作流结束后自动运行CI Environment Cleanup 无需手动、定时触发CL环境清理（使用ubuntu-24.04编译不需要清理 ）
+GitHub Actions 使用/mnt分区 作为编译工作目录（约66GB可用空间）
 
 ssh-generate-config.yml生成.config文件直接push推送到正确目录，如果.config没有变化则不推送push
 
 
-
-2️⃣ 检测 make defconfig 后被取消的包
+ 检测 make defconfig 后被取消的包
 
 make defconfig 的一个特点是：
 
@@ -48,7 +37,7 @@ is not set
 输出清晰状态，避免“以为选了，其实没进固件”
 
 
-3️⃣ 自动修复被 defconfig 取消的包（可选）（lede专用脚本auto-fix-packages.sh）（immortalwrt、openwrt专用脚本auto-fix-packages-openwrt.sh）默认在yml中注释
+ 自动修复被 defconfig 取消的包（可选）（lede专用脚本auto-fix-packages.sh）（immortalwrt、openwrt专用脚本auto-fix-packages-openwrt.sh）默认在yml中注释
 
 针对 确认存在于 feeds 中，但被 defconfig 取消的包，
 提供自动修复脚本：
