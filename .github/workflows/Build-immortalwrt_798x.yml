@@ -22,40 +22,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Removing Browsers & WebDrivers
+      - name: Free disk space
         run: |
-          echo "=== Removing Browsers & WebDrivers ==="
-
-          # Google Chrome
-          sudo apt-get purge -y google-chrome-stable || true
-          sudo rm -rf /usr/bin/google-chrome /opt/google/chrome || true
-
-          # Chromium
-          sudo apt-get purge -y chromium-browser chromium-codecs-ffmpeg-extra || true
-          sudo rm -rf /usr/lib/chromium /usr/lib/chromium-browser || true
-
-          # Microsoft Edge
-          sudo apt-get purge -y microsoft-edge-stable || true
-          sudo rm -rf /usr/bin/microsoft-edge /opt/microsoft/msedge || true
-
-          # Firefox
-          sudo apt-get purge -y firefox || true
-          sudo rm -rf /usr/lib/firefox /usr/lib/firefox-addons || true
-
-          # WebDrivers
-          sudo rm -rf /usr/local/bin/chromedriver || true
-          sudo rm -rf /usr/local/bin/msedgedriver || true
-          sudo rm -rf /usr/local/bin/geckodriver || true
-
-          # Selenium
-          sudo rm -rf /usr/share/selenium || true
-
-          # 
-          sudo apt-get autoremove -y || true
-          sudo apt-get clean || true
-
-          echo "=== Browsers removed ==="
-
+          df -h
+          chmod +x $GITHUB_WORKSPACE/scripts/cleanup.sh
+          chmod +x $GITHUB_WORKSPACE/scripts/free-disk-space.sh
+          #sudo bash $GITHUB_WORKSPACE/scripts/cleanup.sh
+          #sudo bash $GITHUB_WORKSPACE/scripts/free-disk-space.sh       #Use with caution, as it may damage the environment.
+          
       - name: Prepare system
         run: |
           sudo -E timedatectl set-timezone "Asia/Shanghai"
@@ -69,94 +43,7 @@ jobs:
           python3 python3-pip python3-ply python3-docutils qemu-utils re2c rsync scons squashfs-tools subversion swig \
           texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
 
-      - name: Disk usage (before cleanup)
-        run: |
-          echo "=== BEFORE CLEANUP ==="
-          df -h
-          sudo du -h / \
-            --exclude=/proc \
-            --exclude=/sys \
-            --exclude=/dev \
-            2>/dev/null | sort -hr | head -n 30 || true
-
-      - name: Remove large system components (safe)
-        run: |
-          sudo rm -rf /usr/share/dotnet || true
-          sudo rm -rf /opt/ghc || true
-          sudo rm -rf /usr/local/lib/android || true
-          sudo rm -rf /etc/mysql || true
-          sudo rm -rf /etc/php || true
-
-          # System logs
-          sudo find /var/log -type f -delete
-
-          # Fonts
-          sudo rm -rf /usr/share/fonts/*
-
-          # Icons
-          sudo rm -rf /usr/share/icons/*
-
-          # Documentation
-          sudo rm -rf /usr/share/man/* || true
-          sudo rm -rf /usr/share/doc/* || true
-          sudo rm -rf /usr/share/info/* || true
-
-          # Locale files
-          sudo rm -rf /usr/share/locale/*
-          sudo rm -rf /usr/share/i18n/*
-          sudo rm -rf /usr/lib/locale/*
-
-      - name: Conditional Docker cleanup (smart detection)
-        run: |
-          echo "=== Docker Cleanup ==="
-
-          # Check if docker CLI exists
-          if ! command -v docker >/dev/null 2>&1; then
-            echo "❌ Docker CLI not found, skipping cleanup"
-            exit 0
-          fi
-
-          # Check if Docker daemon is running
-          if ! docker info >/dev/null 2>&1; then
-            echo "❌ Docker daemon not running, skipping cleanup"
-            exit 0
-          fi
-
-          echo "✔ Docker daemon detected, starting cleanup..."
-
-          RUNNING_CONTAINERS=$(docker ps -q || true)
-
-          if [ -n "$RUNNING_CONTAINERS" ]; then
-            echo "⚠️ Running containers detected, performing prune only"
-            sudo docker system prune -af || true
-          else
-            echo "✅ No running containers, performing deep cleanup"
-            sudo docker system prune -af || true
-            echo "🧹 Removing /var/lib/docker to free maximum space"
-            sudo rm -rf /var/lib/docker || true
-          fi
-
-          echo "=== Docker Cleanup Done ==="
-
-      - name: Clean APT / logs / temp files
-        run: |
-          sudo apt-get clean || true
-          sudo find /var/log -type f -delete || true
-          sudo rm -rf /tmp/* /var/tmp/* || true
-
-      - name: Clean /mnt (keep swapfile)
-        run: |
-          echo "Cleaning /mnt except swapfile"
-          sudo find /mnt -mindepth 1 -maxdepth 1 ! -name swapfile -exec rm -rf {} +
-          sudo mkdir -p /mnt
-          sudo chown $USER:$USER /mnt
-
-      - name: Clean user caches (ccache / npm / pip)
-        run: |
-          rm -rf ~/.ccache || true
-          rm -rf ~/.cache/pip || true
-          rm -rf ~/.npm || true
-
+      
       - name: Prepare workspace
         run: |
           sudo mkdir -p /mnt
