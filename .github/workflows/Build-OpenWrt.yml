@@ -99,70 +99,51 @@ jobs:
           ccache -M $CCACHE_MAXSIZE
           make -j$(nproc) || make -j1
 
+      - name: Detect platform
+        run: |
+          cd $WORKDIR
+          FILE=$(find bin/targets -name "*.manifest" | head -n 1)
+          BASE=$(basename "$FILE")
+          ARCH=$(echo "$BASE" | cut -d'-' -f2)
+          SUB=$(echo "$BASE" | cut -d'-' -f3)
+          DEV=$(echo "$BASE" | sed -E 's/^openwrt-[^-]+-[^-]+-(.+)\.manifest/\1/')
+          DATE=$(date +"%Y%m%d-%H%M")
+          ZIP="openwrt-${ARCH}-${SUB}-${DEV}-${DATE}.zip"
+          TAG="openwrt-${ARCH}-${SUB}-${DATE}"
+          echo "ZIP=$ZIP" >> $GITHUB_ENV
+          echo "TAG=$TAG" >> $GITHUB_ENV
+
       - name: Package firmware
         run: |
           cd $WORKDIR
-          rm -rf bin/packages || true
-          rm -rf bin/targets/*/*/packages || true
-          # If directory structure changes in the future, use this to delete packages
-          # find bin -type d -name packages -exec rm -rf {} + || true
-          rm -rf output || true
-          rm -f openwrt_firmware.zip || true
-          find bin/targets -maxdepth 3 -type f ! -path "*/packages/*" -print | zip -j openwrt_firmware.zip -@
+          mkdir -p output
+          find bin/targets -type f \
+            ! -path "*/packages/*" \
+            ! -name "*buildinfo" \
+            ! -name "profiles.json" \
+            | zip -j "$ZIP" -@
+          mv "$ZIP" output/
 
-      - name: Upload artifact
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: openwrt_firmware
-          path: ${{ env.WORKDIR }}/openwrt_firmware.zip
-
-      - name: Prepare output directory
-        run: |
-          cd $WORKDIR
-          mkdir -p output
-
-          # Move firmware zip to output
-          mv openwrt_firmware.zip output/
-
-          # Move all firmware files 
-          find bin/targets -maxdepth 3 -type f ! -path "*/packages/*" -exec mv {} output/ \;
-
-          ls -lh output
-
-      - name: Create tag
-        run: |
-          TAG=$(date +"openwrt-%Y%m%d-%H%M")
-          git tag -f "$TAG"
-          git push -f origin "$TAG"
-          echo "TAG_NAME=$TAG" >> $GITHUB_ENV
-
-      - name: Detect device platforms
-        run: |
-          cd $WORKDIR/output
-
-          # Find the manifest file (only one exists)
-          MANIFEST_FILE=$(ls openwrt-*-*-*.manifest 2>/dev/null | head -n 1)
-
-          if [ -z "$MANIFEST_FILE" ]; then
-            echo "PLATFORMS=No manifest file found." >> $GITHUB_ENV
-          else
-            PLATFORM_INFO=$(echo "$MANIFEST_FILE" | \
-              sed -E 's/^openwrt-([^-]+)-([^-]+)-([^ ]+)\.manifest/Architecture: \1\nSubtarget: \2\nDevice: \3/')
-
-            echo "PLATFORMS<<EOF" >> $GITHUB_ENV
-            echo "$PLATFORM_INFO" >> $GITHUB_ENV
-            echo "EOF" >> $GITHUB_ENV
-          fi
+          name: ${{ env.ZIP }}
+          path: ${{ env.WORKDIR }}/output/${{ env.ZIP }}
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.TAG_NAME }}
-          files: ${{ env.WORKDIR }}/output/*.zip
+          tag_name: ${{ env.TAG }}
+          #files: ${{ env.WORKDIR }}/output/*
+          files: ${{ env.WORKDIR }}/output/${{ env.ZIP }}
           body: |
             ## Device Platform Information
-            ```
-            ${{ env.PLATFORMS }}
-            ```
+
+            Architecture: ${{ env.ARCH }}
+            Subtarget:    ${{ env.SUBTARGET }}
+            Device:       ${{ env.DEVICE }}
+
+            Build Tag:    ${{ env.TAG_NAME }}
+          
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
