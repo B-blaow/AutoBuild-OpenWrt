@@ -105,15 +105,26 @@ jobs:
         run: |
           cd $WORKDIR
           FILE=$(find bin/targets -name "*.manifest" | head -n 1)
+
+          if [ -z "$FILE" ]; then
+            echo "No manifest found!"
+            exit 1
+          fi
+
           BASE=$(basename "$FILE")
           ARCH=$(echo "$BASE" | cut -d'-' -f2)
-          SUB=$(echo "$BASE" | cut -d'-' -f3)
-          DEV=$(echo "$BASE" | sed -E 's/^ImmortalWrt-[^-]+-[^-]+-(.+)\.manifest/\1/')
+          SUBTARGET=$(echo "$BASE" | cut -d'-' -f3)
+          DEVICE=$(echo "$BASE" | sed -E 's/^ImmortalWrt-[^-]+-[^-]+-(.+)\.manifest/\1/')
           DATE=$(date +"%Y%m%d-%H%M")
-          ZIP="ImmortalWrt-${ARCH}-${SUB}-${DEV}-${DATE}.zip"
-          TAG="ImmortalWrt-${ARCH}-${SUB}-${DATE}"
+
+          ZIP="ImmortalWrt-${ARCH}-${SUBTARGET}-${DEVICE}-${DATE}.zip"
+          TAG="ImmortalWrt-${ARCH}-${SUBTARGET}-${DATE}"
+
           echo "ZIP=$ZIP" >> $GITHUB_ENV
           echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "ARCH=$ARCH" >> $GITHUB_ENV
+          echo "SUBTARGET=$SUBTARGET" >> $GITHUB_ENV
+          echo "DEVICE=$DEVICE" >> $GITHUB_ENV
 
       - name: Package
         run: |
@@ -123,6 +134,9 @@ jobs:
             ! -path "*/packages/*" \
             ! -name "*buildinfo" \
             ! -name "profiles.json" \
+            ! -name "version.buildinfo" \
+            ! -name "config.buildinfo" \
+            ! -name "feeds.buildinfo" \
             | zip -j "$ZIP" -@
           mv "$ZIP" output/
 
@@ -134,7 +148,6 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.TAG }}
-          #files: ${{ env.WORKDIR }}/output/*
           files: ${{ env.WORKDIR }}/output/${{ env.ZIP }}
           body: |
             ## Device Platform Information
@@ -143,8 +156,7 @@ jobs:
             Subtarget:    ${{ env.SUBTARGET }}
             Device:       ${{ env.DEVICE }}
 
-            Build Tag:    ${{ env.TAG_NAME }}
+            Build Tag:    ${{ env.TAG }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
