@@ -5,7 +5,7 @@ AutoBuild OpenWrt / ImmortalWrt / LEDE
 GitHub Actions CI 的 OpenWrt / ImmortalWrt / LEDE 自动化编译仓库
 
 
-🔧 自动检测 / 修复 .config 中丢失的包（默认调用[check-packages.sh](check-packages.sh)只检测）可选check-packages-status.sh检测加连接ssh修复
+🔧 自动检测 / 修复 .config 中丢失的包（默认调用[check-packages.sh](check-packages.sh)只检测）可选[check-packages-status.sh](check-packages-status.sh)检测加连接ssh修复
 
 GitHub Actions 已将/mnt分区合并到根分区
 
