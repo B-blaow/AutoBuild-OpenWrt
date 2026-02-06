@@ -119,7 +119,7 @@ jobs:
         # 超时后自动结束
         echo "⏱ SSH session timed out"
         tmate -S /tmp/tmate.sock kill-session
-
+        
     - name: Save .config to workspace
       run: |
         TARGET="${{ inputs.target }}"
@@ -129,7 +129,7 @@ jobs:
         cp "$WORKDIR/.config" "$DEST/.config"
 
         echo "Saved .config to $DEST/.config"
-        ls -l "$DEST/.config"  # 排查文件是否复制成功
+        ls -l "$DEST/.config"
 
     - name: Commit & push .config to repo
       if: ${{ inputs.save_to_repo == 'true' }}
@@ -137,7 +137,21 @@ jobs:
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
 
-        git add ${{ inputs.target }}/.config
+         
+        git add "${{ inputs.target }}/.config"
+
+        if git diff --cached --quiet; then
+        echo "No config changes to commit"
+        exit 0
+        fi
+
+        git commit -m "(${{ inputs.target }}): update .config via SSH"
+
+        echo "Pulling latest changes before push..."
+        git pull --rebase
+
+        echo "Pushing updated .config..."
+        git push
 
         if git diff --cached --quiet; then
           echo "No config changes to commit"
@@ -145,4 +159,3 @@ jobs:
           git commit -m "(${{ inputs.target }}): update .config via SSH"
           git push
         fi
-
