@@ -11,7 +11,7 @@ GitHub Actions 已将/mnt分区合并到根分区
 
 部分runner可能没/mnt分区也没有145GB大空间，只有72GB根分区，编译x84_64需要运行free-disk-space.sh脚本清理磁盘空间，清理后可用空间超过50GB(使用free-disk-space.sh脚本后编译速度较慢，注意时间！免费用户runner每次运行时间为6小时，超时自动关闭）
 
-72GB runner运行free-disk-space.sh 日志https://github.com/B-blaow/AutoBuild-OpenWrt/blob/main/74gb_runner_actions_logs/0_build.txt
+[72GB runner运行free-disk-space.sh 日志](74gb_runner_actions_logs/0_build.txt)
 
 GitHub Actions 使用/mnt分区 作为编译工作目录（约66GB可用空间）
 
