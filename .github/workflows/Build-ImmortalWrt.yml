@@ -104,7 +104,7 @@ jobs:
       - name: Detect platform
         run: |
           cd $WORKDIR
-          FILE=$(find bin/targets -name "*.manifest" | head -n 1)
+          FILE=$(find bin/targets -name "immortalwrt-*.manifest" ! -name "Packages.manifest" | head -n 1)
 
           if [ -z "$FILE" ]; then
             echo "No manifest found!"
@@ -114,7 +114,7 @@ jobs:
           BASE=$(basename "$FILE")
           ARCH=$(echo "$BASE" | cut -d'-' -f2)
           SUBTARGET=$(echo "$BASE" | cut -d'-' -f3)
-          DEVICE=$(echo "$BASE" | sed -E 's/^ImmortalWrt-[^-]+-[^-]+-(.+)\.manifest/\1/')
+          DEVICE=$(echo "$BASE" | sed -E 's/^immortalwrt-[^-]+-[^-]+-(.+)\.manifest/\1/')
           DATE=$(date +"%Y%m%d-%H%M")
 
           ZIP="ImmortalWrt-${ARCH}-${SUBTARGET}-${DEVICE}-${DATE}.zip"

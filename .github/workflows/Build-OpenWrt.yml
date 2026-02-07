@@ -102,7 +102,7 @@ jobs:
       - name: Detect platform
         run: |
           cd $WORKDIR
-          FILE=$(find bin/targets -name "*.manifest" | head -n 1)
+          FILE=$(find bin/targets -name "openwrt-*.manifest" ! -name "Packages.manifest" | head -n 1)
 
           if [ -z "$FILE" ]; then
             echo "No manifest found!"
