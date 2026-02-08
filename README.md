@@ -66,9 +66,9 @@ CI 成功但功能缺失
 目录结构
 .
 ├── openwrt/
-│   ├── .config               配置文件
-│   ├── openwrt1.sh           增加feeds脚本
-│   └── openwrt2.sh           修改默认ip脚本
+│   ├── .config              配置文件
+│   ├── openwrt1.sh          增加feeds脚本
+│   └── openwrt2.sh          修改默认ip脚本
 │
 ├── immortalwrt/
 │   ├── .config              配置文件
