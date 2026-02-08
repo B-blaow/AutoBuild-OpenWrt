@@ -80,6 +80,10 @@ CI 成功但功能缺失
 │   ├── lede1.sh             增加feeds脚本
 │   └── lede2.sh             修改默认ip脚本
 │
+├── scripts/
+│   ├── cleanup.sh           清理脚本，清理后可用空间约36GB，清理后不影响编译速度       
+│   └── free-disk-space.sh   清理脚本，清理后可用空间超过50GB，清理后编译速度较慢
+│        
 ├── check-packages-status.sh       检测config配置+连接ssh修复脚本（默认不连接ssh）
 ├── auto-fix-packages-openwrt.sh   immortalwrt & openwrt专用脚本检测+修复 .config 脚本（默认不调用）
 ├── auto-fix-packages.sh           lede专用脚本检测+修复 .config 脚本（默认不调用）
