@@ -11,7 +11,7 @@
 
 GitHub Actions 使用/mnt分区 作为编译工作目录（约66GB可用空间）
 
-[ssh-generate-config.yml](.github/workflows/ssh-generate-config.yml)生成.config文件直接`push`推送到正确目录，如果.config没有变化则不推送`push`
+## [ssh-generate-config.yml](.github/workflows/ssh-generate-config.yml)生成.config文件直接`push`推送到正确目录，如果.config没有变化则不推送`push`
 
 
 ## 检测 make defconfig 后被取消的包
