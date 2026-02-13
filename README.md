@@ -1,13 +1,9 @@
-AutoBuild OpenWrt / ImmortalWrt / LEDE
+# AutoBuild OpenWrt / ImmortalWrt / LEDE
 
 
 
-GitHub Actions CI 的 OpenWrt / ImmortalWrt / LEDE 自动化编译仓库
+## GitHub Actions CI 的 OpenWrt / ImmortalWrt / LEDE 自动化编译仓库
 
-
-🔧 自动检测 / 修复 .config 中丢失的包（默认调用[check-packages.sh](check-packages.sh)只检测）可选[check-packages-status.sh](check-packages-status.sh)检测加连接ssh修复
-
-GitHub Actions 已将/mnt分区合并到根分区
 
 部分runner可能没/mnt分区也没有145GB大空间，只有72GB根分区，编译x84_64需要运行[free-disk-space.sh](scripts/free-disk-space.sh)脚本清理磁盘空间，清理后可用空间超过50GB(使用[free-disk-space.sh](scripts/free-disk-space.sh)脚本后编译速度较慢，注意时间！免费用户runner每次运行时间为6小时，超时自动关闭）
 
@@ -15,10 +11,10 @@ GitHub Actions 已将/mnt分区合并到根分区
 
 GitHub Actions 使用/mnt分区 作为编译工作目录（约66GB可用空间）
 
-[ssh-generate-config.yml](.github/workflows/ssh-generate-config.yml)生成.config文件直接push推送到正确目录，如果.config没有变化则不推送push
+[ssh-generate-config.yml](.github/workflows/ssh-generate-config.yml)生成.config文件直接`push`推送到正确目录，如果.config没有变化则不推送`push`
 
 
- 检测 make defconfig 后被取消的包
+## 检测 make defconfig 后被取消的包
 
 make defconfig 的一个特点是：
 
@@ -34,12 +30,14 @@ is not set
 
 完全不存在于 .config
 
-输出清晰状态，避免“以为选了，其实没进固件”
+## 输出清晰状态，避免“以为选了，其实没进固件”
 
 
  自动修复被 defconfig 取消的包（可选）（lede专用脚本[auto-fix-packages.sh](auto-fix-packages.sh)）（immortalwrt、openwrt专用脚本[auto-fix-packages-openwrt.sh](auto-fix-packages-openwrt.sh)）默认在yml中注释
 
-针对 确认存在于 feeds 中，但被 defconfig 取消的包，
+## 针对 确认存在于feeds中，但被 defconfig 取消的包
+
+🔧 自动检测 / 修复 .config 中丢失的包（默认调用[check-packages.sh](check-packages.sh)只检测）可选[check-packages-status.sh](check-packages-status.sh)检测加连接ssh修复
 提供自动修复脚本：
 
 自动写回 .config
