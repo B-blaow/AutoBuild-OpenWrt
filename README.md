@@ -32,12 +32,12 @@ is not set
 
 ## 输出清晰状态，避免“以为选了，其实没进固件”
 
-
- 自动修复被 defconfig 取消的包（可选）（lede专用脚本[auto-fix-packages.sh](auto-fix-packages.sh)）（immortalwrt、openwrt专用脚本[auto-fix-packages-openwrt.sh](auto-fix-packages-openwrt.sh)）默认在yml中注释
+🔧 自动检测 / 修复 .config 中丢失的包（默认调用[check-packages.sh](check-packages.sh)只检测）可选[check-packages-status.sh](check-packages-status.sh)检测加连接ssh修复
+ 
 
 ## 针对 确认存在于feeds中，但被 defconfig 取消的包
+自动修复被 defconfig 取消的包（可选）（lede专用脚本[auto-fix-packages.sh](auto-fix-packages.sh)）（immortalwrt、openwrt专用脚本[auto-fix-packages-openwrt.sh](auto-fix-packages-openwrt.sh)）默认在yml中注释
 
-🔧 自动检测 / 修复 .config 中丢失的包（默认调用[check-packages.sh](check-packages.sh)只检测）可选[check-packages-status.sh](check-packages-status.sh)检测加连接ssh修复
 提供自动修复脚本：
 
 自动写回 .config
