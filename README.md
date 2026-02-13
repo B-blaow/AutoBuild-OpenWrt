@@ -5,11 +5,13 @@
 ## GitHub Actions CI 的 OpenWrt / ImmortalWrt / LEDE 自动化编译仓库
 
 
+使用/mnt分区 作为编译工作目录（约66GB可用空间）
+
+
 部分runner可能没/mnt分区也没有145GB大空间，只有72GB根分区，编译x84_64需要运行[free-disk-space.sh](scripts/free-disk-space.sh)脚本清理磁盘空间，清理后可用空间超过50GB(使用[free-disk-space.sh](scripts/free-disk-space.sh)脚本后编译速度较慢，注意时间！免费用户runner每次运行时间为6小时，超时自动关闭）
 
 [72GB runner运行free-disk-space.sh 日志](74gb_runner_actions_logs/0_build.txt)
 
-GitHub Actions 使用/mnt分区 作为编译工作目录（约66GB可用空间）
 
 ### [ssh-generate-config.yml](.github/workflows/ssh-generate-config.yml)生成.config文件直接`push`推送到正确目录，如果.config没有变化则不推送`push`
 
