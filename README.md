@@ -11,7 +11,7 @@
 
 GitHub Actions 使用/mnt分区 作为编译工作目录（约66GB可用空间）
 
-## [ssh-generate-config.yml](.github/workflows/ssh-generate-config.yml)生成.config文件直接`push`推送到正确目录，如果.config没有变化则不推送`push`
+### [ssh-generate-config.yml](.github/workflows/ssh-generate-config.yml)生成.config文件直接`push`推送到正确目录，如果.config没有变化则不推送`push`
 
 
 ## 检测 make defconfig 后被取消的包
@@ -35,7 +35,7 @@ is not set
 🔧 自动检测 / 修复 .config 中丢失的包（默认调用[check-packages.sh](check-packages.sh)只检测）可选[check-packages-status.sh](check-packages-status.sh)检测加连接ssh修复
  
 
-## 针对 确认存在于feeds中，但被 defconfig 取消的包
+## 针对 `确认存在于feeds中`，但被 defconfig 取消的包
 自动修复被 defconfig 取消的包（可选）（lede专用脚本[auto-fix-packages.sh](auto-fix-packages.sh)）（immortalwrt、openwrt专用脚本[auto-fix-packages-openwrt.sh](auto-fix-packages-openwrt.sh)）默认在yml中注释
 
 提供自动修复脚本：
