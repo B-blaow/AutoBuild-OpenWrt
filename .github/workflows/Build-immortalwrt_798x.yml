@@ -2,8 +2,7 @@ name: Build immortalwrt_798x
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 0 2 * *'
+  
 permissions: 
   contents: write
 
