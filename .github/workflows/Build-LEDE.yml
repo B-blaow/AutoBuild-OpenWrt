@@ -3,7 +3,7 @@ name: Build LEDE
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 3 * *'
+    - cron: '30 19 3 * *'
 permissions: 
   contents: write
 env:
