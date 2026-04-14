@@ -63,6 +63,13 @@ jobs:
         run: |
           cd $WORKDIR
           ./scripts/feeds update -a
+          rm -rf feeds/luci/applications/luci-app-adguardhome
+          git clone https://github.com/B-blaow/luci-app-adguardhome.git package/luci-app-adguardhome  
+          rm -rf package/luci-app-adguardhome/.git 
+          rm -rf package/luci-app-adguardhome/.github
+          rm -rf package/luci-app-adguardhome/README.md
+          rm -rf package/luci-app-adguardhome/.gitattributes
+          rm -rf package/luci-app-adguardhome/.gitignore
           ./scripts/feeds install -a
 
       - name: Copy config
