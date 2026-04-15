@@ -2,6 +2,17 @@ name: Build OpenWrt
 
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'OpenWrt 分支'
+        required: true
+        default: 'openwrt-25.12'
+        type: choice
+        options:
+          - openwrt-25.12
+          - main
+          - openwrt-24.10
+          - openwrt-23.05
   schedule:
     - cron: '30 19 1 * *'
 
@@ -45,7 +56,7 @@ jobs:
 
       - name: Clone source
         run: |
-          git clone --depth=1 $REPO_URL $WORKDIR
+          git clone --depth=1 -b ${{ inputs.branch || 'main' }} $REPO_URL $WORKDIR
 
       - name: Run first script
         run: |
@@ -121,8 +132,8 @@ jobs:
           DEVICE=$(echo "$BASE" | sed -E 's/^openwrt-[^-]+-[^-]+-(.+)\.manifest/\1/')
           DATE=$(date +"%Y%m%d-%H%M")
 
-          ZIP="openwrt-${ARCH}-${SUBTARGET}-${DEVICE}-${DATE}.zip"
-          TAG="openwrt-${ARCH}-${SUBTARGET}-${DATE}"
+          ZIP="openwrt-${{ inputs.branch || 'main' }}-${ARCH}-${SUBTARGET}-${DEVICE}-${DATE}.zip"
+          TAG="openwrt-${{ inputs.branch || 'main' }}${ARCH}-${SUBTARGET}-${DATE}"
 
           echo "ZIP=$ZIP" >> $GITHUB_ENV
           echo "TAG=$TAG" >> $GITHUB_ENV
