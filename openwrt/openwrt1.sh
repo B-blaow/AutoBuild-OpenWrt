@@ -15,7 +15,7 @@ git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
 
 
 git clone --depth=1 \
-  https://github.com/coolsnowwolf/luci.git \
+  https://github.com/immortalwrt/luci.git \
   -b openwrt-25.12 \
   /tmp/luci
 
